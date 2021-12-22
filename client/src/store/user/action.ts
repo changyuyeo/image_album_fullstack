@@ -9,9 +9,15 @@ const userFetch = createAsyncThunk('user/fetch', async () => {
 
 const userLogin = createAsyncThunk(
 	'user/login',
-	async (payload: ReqLoginData) => {
-		const { data } = await userLoginAPI(payload)
-		return data
+	async (payload: ReqLoginData, { rejectWithValue }) => {
+		try {
+			const { data } = await userLoginAPI(payload)
+			return data
+		} catch (error: any) {
+			if (!error.response) throw error
+			return rejectWithValue(error.response.data.message)
+			// throw rejectWithValue(error.response.data.message)
+		}
 	}
 )
 

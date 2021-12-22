@@ -49,8 +49,8 @@ router.post('/signup', isNotLoggedIn, async (req, res) => {
 // 로그인 API
 router.post('/login', isNotLoggedIn, (req, res) => {
 	passport.authenticate('local', (err, user, info) => {
-		if (err) return res.status(500).json({ message: err })
-		if (info) return res.status(400).json({ message: info })
+		if (err) return res.status(500).json(err)
+		if (info) return res.status(400).json(info)
 		return req.login(user, loginErr => {
 			if (loginErr) return res.status(500).json(loginErr)
 			return res.status(200).json(user)
