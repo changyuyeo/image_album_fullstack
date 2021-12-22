@@ -2,7 +2,7 @@ import { user } from 'api'
 import { AxiosPromise } from 'axios'
 import { ReqLoginData, ReqSignUpData, ResUserData } from 'api/user/types'
 
-// 유저정보 가져오는 API
+// 유저정보 API
 const userFetchAPI = (): AxiosPromise<ResUserData | null> => user.get('.')
 
 // 회원가입 API

@@ -1,3 +1,0 @@
-# images_practice_server
-
-images_practice_server

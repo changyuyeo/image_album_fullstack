@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { RootState } from 'store'
@@ -24,18 +24,22 @@ const UploadForm = () => {
 			formData.append('image', file!)
 			const uploadData = { formData, setPercent }
 			dispatch(imageUpload(uploadData))
-			if (uploadDone) {
-				toast.success('이미지 업로드 성공!')
-				setTimeout(() => setPercent(0), 3000)
-				setImgSrc(null)
-			} else if (uploadError) {
-				toast.error(uploadError)
-				setPercent(0)
-				setImgSrc(null)
-			}
 		},
-		[dispatch, file, uploadDone, uploadError]
+		[dispatch, file]
 	)
+
+	useEffect(() => {
+		if (uploadDone) {
+			toast.success('이미지 업로드 성공!')
+			setTimeout(() => setPercent(0), 3000)
+			setImgSrc(null)
+		}
+		if (uploadError) {
+			toast.error(uploadError)
+			setPercent(0)
+			setImgSrc(null)
+		}
+	}, [uploadDone, uploadError])
 
 	const onChangeImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
 		const imageFile = e.target.files![0]
