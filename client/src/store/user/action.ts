@@ -16,7 +16,6 @@ const userLogin = createAsyncThunk(
 		} catch (error: any) {
 			if (!error.response) throw error
 			return rejectWithValue(error.response.data.message)
-			// throw rejectWithValue(error.response.data.message)
 		}
 	}
 )

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { ResUserData } from 'api/user/types'
 import { userFetch, userLogin } from 'store/user/action'
 
@@ -47,9 +47,9 @@ const userSlice = createSlice({
 					state.user = action.payload
 				}
 			)
-			.addCase(userFetch.rejected, (state: UserState, action) => {
+			.addCase(userFetch.rejected, (state: UserState, action: AnyAction) => {
 				state.logInLoading = false
-				state.logInError = action.error.message!
+				state.logInError = action.payload
 			})
 			// userLogin
 			.addCase(userLogin.pending, (state: UserState) => {
@@ -65,7 +65,7 @@ const userSlice = createSlice({
 					state.user = action.payload
 				}
 			)
-			.addCase(userLogin.rejected, (state: UserState, action: any) => {
+			.addCase(userLogin.rejected, (state: UserState, action: AnyAction) => {
 				state.logInLoading = false
 				state.logInError = action.payload
 			})

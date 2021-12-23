@@ -25,6 +25,8 @@
 			"no-param-reassign": "off",
 			"import/no-unresolved": "off",
 			"consistent-return": "off",
+			"no-return-assign": "off",
+			"no-unused-vars": "off",
 			"no-alert": "off"
 		}
 	},

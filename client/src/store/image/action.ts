@@ -1,22 +1,69 @@
 import { Dispatch, SetStateAction } from 'react'
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { imageFetchAPI, imageUploadAPI } from 'api/image'
+import {
+	imageDeleteAPI,
+	imageFetchAPI,
+	imageMeFetchAPI,
+	imageUploadAPI
+} from 'api/image'
 
-const imageFetch = createAsyncThunk('image/fetch', async () => {
-	const { data } = await imageFetchAPI()
-	return data
-})
-
-const imageUpload = createAsyncThunk(
-	'image/upload',
-	async (payload: {
-		formData: FormData
-		setPercent: Dispatch<SetStateAction<number>>
-	}) => {
-		const { formData, setPercent } = payload
-		const { data } = await imageUploadAPI(formData, setPercent)
-		return data
+const imageFetch = createAsyncThunk(
+	'image/fetch',
+	async (_, { rejectWithValue }) => {
+		try {
+			const { data } = await imageFetchAPI()
+			return data
+		} catch (error: any) {
+			if (!error.response) throw error
+			return rejectWithValue(error.response.data.message)
+		}
 	}
 )
 
-export { imageFetch, imageUpload }
+const imageMeFetch = createAsyncThunk(
+	'image/fetch/me',
+	async (_, { rejectWithValue }) => {
+		try {
+			const { data } = await imageMeFetchAPI()
+			return data
+		} catch (error: any) {
+			if (!error.response) throw error
+			return rejectWithValue(error.response.data.message)
+		}
+	}
+)
+
+const imageUpload = createAsyncThunk(
+	'image/upload',
+	async (
+		payload: {
+			formData: FormData
+			setPercent: Dispatch<SetStateAction<number>>
+		},
+		{ rejectWithValue }
+	) => {
+		const { formData, setPercent } = payload
+		try {
+			const { data } = await imageUploadAPI(formData, setPercent)
+			return data
+		} catch (error: any) {
+			if (!error.response) throw error
+			return rejectWithValue(error.response.data.message)
+		}
+	}
+)
+
+const imageDelete = createAsyncThunk(
+	'image/delete',
+	async (imageId: string, { rejectWithValue }) => {
+		try {
+			const { data } = await imageDeleteAPI(imageId)
+			return data
+		} catch (error: any) {
+			if (!error.response) throw error
+			return rejectWithValue(error.response.data.message)
+		}
+	}
+)
+
+export { imageFetch, imageMeFetch, imageUpload, imageDelete }

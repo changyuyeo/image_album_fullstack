@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { ChangeEvent, useCallback, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { RootState } from 'store'
@@ -8,38 +8,34 @@ import ProgressBar from 'components/ProgressBar'
 
 const UploadForm = () => {
 	const dispatch = useDispatch()
-	const { uploadDone, uploadError } = useSelector(
-		(state: RootState) => state.image
-	)
+	const { uploadError } = useSelector((state: RootState) => state.image)
 
 	const [file, setFile] = useState<File | null>(null)
 	const [fileName, setFileName] = useState('이미지 파일을 업로드 해주세요!')
 	const [percent, setPercent] = useState(0)
 	const [imgSrc, setImgSrc] = useState<string | null>(null)
+	const [isPublic, setIsPublic] = useState(true)
 
 	const onSubmitForm = useCallback(
 		async (e: ChangeEvent<HTMLFormElement>) => {
 			e.preventDefault()
 			const formData = new FormData()
 			formData.append('image', file!)
+			formData.append('public', String(isPublic))
 			const uploadData = { formData, setPercent }
 			dispatch(imageUpload(uploadData))
+			if (uploadError) {
+				toast.error(uploadError)
+				setPercent(0)
+				setImgSrc(null)
+			} else {
+				toast.success('이미지 업로드 성공!')
+				setTimeout(() => setPercent(0), 3000)
+				setImgSrc(null)
+			}
 		},
-		[dispatch, file]
+		[dispatch, file, isPublic, uploadError]
 	)
-
-	useEffect(() => {
-		if (uploadDone) {
-			toast.success('이미지 업로드 성공!')
-			setTimeout(() => setPercent(0), 3000)
-			setImgSrc(null)
-		}
-		if (uploadError) {
-			toast.error(uploadError)
-			setPercent(0)
-			setImgSrc(null)
-		}
-	}, [uploadDone, uploadError])
 
 	const onChangeImage = useCallback((e: ChangeEvent<HTMLInputElement>) => {
 		const imageFile = e.target.files![0]
@@ -49,6 +45,8 @@ const UploadForm = () => {
 		fileReader.readAsDataURL(imageFile)
 		fileReader.onload = () => setImgSrc(fileReader.result as string)
 	}, [])
+
+	const onTogglePublic = useCallback(() => setIsPublic(!isPublic), [isPublic])
 
 	return (
 		<form onSubmit={onSubmitForm}>
@@ -63,6 +61,13 @@ const UploadForm = () => {
 					onChange={onChangeImage}
 				/>
 			</FileDropper>
+			<input
+				id="public-checkbox"
+				type="checkbox"
+				value={String(!isPublic)}
+				onChange={onTogglePublic}
+			/>
+			<label htmlFor="public-checkbox">비공개</label>
 			<button
 				type="submit"
 				style={{

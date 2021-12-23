@@ -4,7 +4,6 @@ import passport from 'passport'
 
 import { isLoggedIn, isNotLoggedIn } from '../middleware/auth'
 import User from '../models/User'
-import Image from '../models/Image'
 
 const router = Router()
 
@@ -64,17 +63,6 @@ router.post('/logout', isLoggedIn, (req, res) => {
 	req.logout()
 	req.session.destroy()
 	return res.status(200).json({ message: '로그아웃 되었습니다.' })
-})
-
-// GET /user/images
-// 로그인된 유저의 이미지정보 가져오기 API
-router.get('/images', isLoggedIn, async (req, res) => {
-	try {
-		const images = await Image.find({ user: req.user._id })
-		return res.status(200).json(images)
-	} catch (error) {
-		return res.status(500).json({ message: error.message })
-	}
 })
 
 export default router

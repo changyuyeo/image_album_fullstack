@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect } from 'react'
+import { ChangeEvent, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -10,9 +10,7 @@ import CustomForm from 'components/common/CustomForm'
 const LoginForm = () => {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
-	const { logInDone, logInError } = useSelector(
-		(state: RootState) => state.user
-	)
+	const { logInError } = useSelector((state: RootState) => state.user)
 
 	const [username, onChangeUsername] = useInput('')
 	const [password, onChangePassword] = useInput('')
@@ -21,17 +19,14 @@ const LoginForm = () => {
 		(e: ChangeEvent<HTMLFormElement>) => {
 			e.preventDefault()
 			dispatch(userLogin({ username, password }))
+			if (logInError) toast.error(logInError)
+			else {
+				toast.success('로그인을 성공했습니다!')
+				navigate('/')
+			}
 		},
-		[dispatch, username, password]
+		[dispatch, navigate, username, password, logInError]
 	)
-
-	useEffect(() => {
-		if (logInDone) {
-			toast.success('로그인을 성공했습니다!')
-			navigate('/')
-		}
-		if (logInError) toast.error(logInError)
-	}, [logInDone, logInError, navigate])
 
 	return (
 		<form onSubmit={onSubmitForm}>
