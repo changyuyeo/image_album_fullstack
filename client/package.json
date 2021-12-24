@@ -20,10 +20,11 @@
 			"@typescript-eslint/no-use-before-define": [
 				"error"
 			],
+			"import/prefer-default-export": "off",
+			"import/no-unresolved": "off",
 			"no-underscore-dangle": "off",
 			"no-use-before-define": "off",
 			"no-param-reassign": "off",
-			"import/no-unresolved": "off",
 			"consistent-return": "off",
 			"no-return-assign": "off",
 			"no-unused-vars": "off",

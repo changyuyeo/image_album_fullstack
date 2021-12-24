@@ -1,41 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import styled from 'styled-components'
+import { toast } from 'react-toastify'
+
 import { RootState } from 'store'
 import { imageFetch, imageMeFetch } from 'store/image/action'
 import { SERVER_URI } from 'api'
-import { toast } from 'react-toastify'
-import { Link } from 'react-router-dom'
 import useIsMount from 'hooks/useIsMount'
-
-const ImgBox = styled.img`
-	width: 100%;
-`
-
-const ImgContainer = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px;
-	justify-content: space-around;
-	img {
-		width: 140px;
-		height: 140px;
-		object-fit: cover;
-		transition: 0.5s;
-		&:hover {
-			box-shadow: 3px 3px 3px #aaa;
-			opacity: 0.8;
-			cursor: pointer;
-		}
-	}
-`
+import { ImgContainer, ImgPublicChoice } from 'components/ImageListStyled'
 
 const ImageList = () => {
 	const dispatch = useDispatch()
 	const isMount = useIsMount()
 
 	const { user } = useSelector((state: RootState) => state.user)
-	const { images, myImages, imagesError } = useSelector(
+	const { images, myImages, imagesLoading, imagesError } = useSelector(
 		(state: RootState) => state.image
 	)
 
@@ -54,24 +33,31 @@ const ImageList = () => {
 		setIsPublic(!isPublic)
 	}, [isPublic, user])
 
+	// 이미지 더 보기
+	const onClickLoadMoreImage = useCallback(() => {
+		if (isMount) {
+			dispatch(imageFetch(images[images.length - 1]._id))
+		}
+		if (imagesError) toast.error(imagesError)
+	}, [dispatch, isMount, imagesError, images])
+
 	const imgList = () => {
 		const img = isPublic ? images : myImages
-		return img.map(v => (
-			<Link key={v._id} to={`/image/${v._id}`}>
-				<ImgBox src={`${SERVER_URI}/${v.key}`} alt={v.originalFileName} />
+		return img.map((v, i) => (
+			<Link key={v._id + i} to={`/image/${v._id}`}>
+				<img src={`${SERVER_URI}/${v.key}`} alt={v.originalFileName} />
 			</Link>
 		))
 	}
 
 	return (
 		<div>
-			<div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
+			<ImgPublicChoice>
 				<h3>ImageList({isPublic ? '공개' : '개인'}사진)</h3>
-				<button onClick={onTogglePublic}>
-					{!isPublic ? '공개' : '개인'} 사진 보기
-				</button>
-			</div>
+				<button onClick={onTogglePublic}>{!isPublic ? '공개' : '개인'} 사진 보기</button>
+			</ImgPublicChoice>
 			<ImgContainer>{imgList()}</ImgContainer>
+			{!imagesLoading && <button onClick={onClickLoadMoreImage}>Load More Images</button>}
 		</div>
 	)
 }

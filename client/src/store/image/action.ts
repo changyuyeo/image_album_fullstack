@@ -1,17 +1,12 @@
 import { Dispatch, SetStateAction } from 'react'
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import {
-	imageDeleteAPI,
-	imageFetchAPI,
-	imageMeFetchAPI,
-	imageUploadAPI
-} from 'api/image'
+import { imageDeleteAPI, imageFetchAPI, imageMeFetchAPI, imageUploadAPI } from 'api/image'
 
 const imageFetch = createAsyncThunk(
 	'image/fetch',
-	async (_, { rejectWithValue }) => {
+	async (lastImageId: string | undefined, { rejectWithValue }) => {
 		try {
-			const { data } = await imageFetchAPI()
+			const { data } = await imageFetchAPI(lastImageId)
 			return data
 		} catch (error: any) {
 			if (!error.response) throw error
@@ -22,9 +17,9 @@ const imageFetch = createAsyncThunk(
 
 const imageMeFetch = createAsyncThunk(
 	'image/fetch/me',
-	async (_, { rejectWithValue }) => {
+	async (lastImageId: string | undefined, { rejectWithValue }) => {
 		try {
-			const { data } = await imageMeFetchAPI()
+			const { data } = await imageMeFetchAPI(lastImageId)
 			return data
 		} catch (error: any) {
 			if (!error.response) throw error

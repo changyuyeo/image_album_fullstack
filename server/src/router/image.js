@@ -11,19 +11,22 @@ const fileUnlink = promisify(fs.unlink) // Promise
 
 // POST /image
 // 이미지 업로드 API
-router.post('/', isLoggedIn, upload.single('image'), async (req, res) => {
+router.post('/', isLoggedIn, upload.array('image', 5), async (req, res) => {
 	try {
-		if (!req.file) return res.status(400).json({ message: '이미지 업로드는 필수입니다.' })
-		const newImage = await new Image({
-			user: req.user._id,
-			public: req.body.public,
-			key: req.file.filename,
-			originalFileName: req.file.originalname
-		})
-		await newImage.save()
-		return res.status(200).json(newImage)
+		if (!req.files) return res.status(400).json({ message: '이미지 업로드는 필수입니다.' })
+		const images = await Promise.all(
+			req.files.map(async file => {
+				const image = await new Image({
+					user: req.user._id,
+					public: req.body.public,
+					key: file.filename,
+					originalFileName: file.originalname
+				}).save()
+				return image
+			})
+		)
+		return res.status(200).json(images)
 	} catch (error) {
-		console.error(error.message)
 		return res.status(500).json({ message: error.message })
 	}
 })
@@ -32,10 +35,17 @@ router.post('/', isLoggedIn, upload.single('image'), async (req, res) => {
 // 모든 이미지 가져오기 API
 router.get('/', async (req, res) => {
 	try {
-		const images = await Image.find({ public: true })
+		const { lastId } = req.query
+		console.log(lastId)
+		if (lastId && !isValidObjectId(lastId))
+			return res.status(400).json({ message: '잘못된 정보 입니다.' })
+		const images = await Image.find(
+			lastId ? { public: true, _id: { $lt: lastId } } : { public: true }
+		)
+			.sort({ _id: -1 })
+			.limit(20)
 		return res.status(200).json(images)
 	} catch (error) {
-		console.error(error.message)
 		return res.status(500).json({ message: error.message })
 	}
 })

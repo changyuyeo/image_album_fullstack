@@ -1,11 +1,6 @@
 import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { ResImagesData } from 'api/image/types'
-import {
-	imageDelete,
-	imageFetch,
-	imageMeFetch,
-	imageUpload
-} from 'store/image/action'
+import { imageDelete, imageFetch, imageMeFetch, imageUpload } from 'store/image/action'
 
 interface ImageState {
 	imagesLoading: boolean
@@ -52,7 +47,8 @@ const imageSlice = createSlice({
 				(state: ImageState, action: PayloadAction<ResImagesData[]>) => {
 					state.imagesLoading = false
 					state.imagesDone = true
-					state.images = action.payload
+					if (state.images.length === 0) state.images = action.payload
+					else state.images = [...state.images, ...action.payload]
 				}
 			)
 			.addCase(imageFetch.rejected, (state: ImageState, action: AnyAction) => {
@@ -73,13 +69,10 @@ const imageSlice = createSlice({
 					state.myImages = action.payload
 				}
 			)
-			.addCase(
-				imageMeFetch.rejected,
-				(state: ImageState, action: AnyAction) => {
-					state.imagesLoading = false
-					state.imagesError = action.payload
-				}
-			)
+			.addCase(imageMeFetch.rejected, (state: ImageState, action: AnyAction) => {
+				state.imagesLoading = false
+				state.imagesError = action.payload
+			})
 			// 이미지 업로드
 			.addCase(imageUpload.pending, (state: ImageState) => {
 				state.uploadLoading = true
@@ -88,11 +81,11 @@ const imageSlice = createSlice({
 			})
 			.addCase(
 				imageUpload.fulfilled,
-				(state: ImageState, action: PayloadAction<ResImagesData>) => {
+				(state: ImageState, action: PayloadAction<ResImagesData[]>) => {
 					state.uploadLoading = false
 					state.uploadDone = true
-					if (action.payload.public) state.images.push(action.payload)
-					else state.myImages.push(action.payload)
+					if (action.payload[0].public) state.images.push(...action.payload)
+					else state.myImages.push(...action.payload)
 				}
 			)
 			.addCase(imageUpload.rejected, (state: ImageState, action: AnyAction) => {

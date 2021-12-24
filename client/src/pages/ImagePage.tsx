@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
+
 import { SERVER_URI } from 'api'
 import { imageLikedAPI, imageOneFetchAPI } from 'api/image'
 import { ResImagesData } from 'api/image/types'
 import { RootState } from 'store'
-import LoadingSpinner from 'components/common/LoadingSpinner'
 import { imageDelete } from 'store/image/action'
+import LoadingSpinner from 'components/common/LoadingSpinner'
+import { ImagePageContainer } from 'pages/ImagePageStyled'
 
 const ImagePage = () => {
 	const navigate = useNavigate()
@@ -71,31 +73,19 @@ const ImagePage = () => {
 	if (!image) return <LoadingSpinner />
 
 	return (
-		<>
+		<ImagePageContainer>
 			<h3>ImagePage - {id}</h3>
-			<img
-				style={{ width: '100%' }}
-				src={`${SERVER_URI}/${image!.key}`}
-				alt={image!.originalFileName || 'image'}
-			/>
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					marginTop: '10px'
-				}}
-			>
+			<img src={`${SERVER_URI}/${image!.key}`} alt={image!.originalFileName || 'image'} />
+			<div>
 				<span>좋아요 {image.likes.length}개</span>
-				<div style={{ display: 'flex', gap: '10px' }}>
-					<button onClick={onClickLikeButton}>
-						{hasLiked ? '싫어요!' : '좋아요!'}
-					</button>
+				<div>
+					<button onClick={onClickLikeButton}>{hasLiked ? '싫어요!' : '좋아요!'}</button>
 					{user && image.user === user._id && (
 						<button onClick={onClickDeleteButton}>삭제하기</button>
 					)}
 				</div>
 			</div>
-		</>
+		</ImagePageContainer>
 	)
 }
 

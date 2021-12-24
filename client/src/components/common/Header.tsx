@@ -1,15 +1,11 @@
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
-import { userLogoutAPI } from 'api/user'
+
 import { RootState } from 'store'
 import { logoutAction } from 'store/user'
-import {
-	HeaderBox,
-	LogoutButton,
-	MenuBox,
-	StyledLink
-} from 'components/common/HeaderStyled'
+import { userLogoutAPI } from 'api/user'
+import { HeaderBox, LogoutButton, MenuBox, StyledLink } from 'components/common/HeaderStyled'
 
 const Header = () => {
 	const dispatch = useDispatch()

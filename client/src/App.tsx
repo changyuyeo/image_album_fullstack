@@ -1,8 +1,9 @@
 import { Suspense, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
+
 import RouterConfig from 'router'
 import { userFetch } from 'store/user/action'
 import Header from 'components/common/Header'
