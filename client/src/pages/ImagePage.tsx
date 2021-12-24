@@ -7,7 +7,7 @@ import { SERVER_URI } from 'api'
 import { imageLikedAPI, imageOneFetchAPI } from 'api/image'
 import { ResImagesData } from 'api/image/types'
 import { RootState } from 'store'
-import { imageDelete } from 'store/image/action'
+import { imageDelete, imageMeFetch } from 'store/image/action'
 import LoadingSpinner from 'components/common/LoadingSpinner'
 import { ImagePageContainer } from 'pages/ImagePageStyled'
 
@@ -56,6 +56,7 @@ const ImagePage = () => {
 			toast.success('삭제가 완료되었습니다.')
 			navigate('/')
 		}
+		dispatch(imageMeFetch())
 	}, [navigate, dispatch, deleteError, id])
 
 	// 좋아요, 싫어요 버튼

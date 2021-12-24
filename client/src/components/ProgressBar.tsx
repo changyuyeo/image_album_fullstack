@@ -3,7 +3,7 @@ import { ProgressBoundary } from 'components/ProgressBarStyled'
 
 const ProgressBar: FC<{ percent: number }> = ({ percent }) => (
 	<ProgressBoundary percent={percent}>
-		<div>{percent}%</div>
+		<div>{percent || 0}%</div>
 	</ProgressBoundary>
 )
 

@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useState } from 'react'
+import { ChangeEvent, useCallback, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 
@@ -20,6 +20,7 @@ const UploadForm = () => {
 	const [percent, setPercent] = useState(0)
 	const [previews, setPreviews] = useState<any[]>([])
 	const [isPublic, setIsPublic] = useState(true)
+	const inputRef = useRef<HTMLInputElement | null>(null)
 
 	const onSubmitForm = useCallback(
 		async (e: ChangeEvent<HTMLFormElement>) => {
@@ -33,10 +34,12 @@ const UploadForm = () => {
 				toast.error(uploadError)
 				setPercent(0)
 				setPreviews([])
+				inputRef.current!.value = ''
 			} else {
 				toast.success('이미지 업로드 성공!')
 				setTimeout(() => setPercent(0), 3000)
 				setPreviews([])
+				inputRef.current!.value = ''
 			}
 		},
 		[dispatch, files, isPublic, uploadError]
@@ -84,7 +87,14 @@ const UploadForm = () => {
 			<ProgressBar percent={percent} />
 			<FileDropper>
 				{filtName}
-				<input id="image" type="file" multiple accept="image/*" onChange={onChangeImage} />
+				<input
+					ref={ref => (inputRef.current = ref)}
+					id="image"
+					type="file"
+					multiple
+					accept="image/*"
+					onChange={onChangeImage}
+				/>
 			</FileDropper>
 			<input
 				id="public-checkbox"

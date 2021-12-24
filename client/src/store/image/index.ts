@@ -14,6 +14,9 @@ interface ImageState {
 	deleteError: string | null
 	images: ResImagesData[]
 	myImages: ResImagesData[]
+	hasImagesFetch: boolean
+	hasMyImagesFetch: boolean
+	myImagesChangeOnce: boolean
 }
 
 const initialState: ImageState = {
@@ -27,13 +30,23 @@ const initialState: ImageState = {
 	deleteDone: false,
 	deleteError: null,
 	images: [],
-	myImages: []
+	myImages: [],
+	hasImagesFetch: false,
+	hasMyImagesFetch: false,
+	myImagesChangeOnce: false
 }
 
 const imageSlice = createSlice({
 	name: 'image',
 	initialState,
-	reducers: {},
+	reducers: {
+		setHasImagesFetch(state: ImageState) {
+			state.hasImagesFetch = true
+		},
+		setHasMyImagesFetch(state: ImageState) {
+			state.hasMyImagesFetch = true
+		}
+	},
 	extraReducers: bulid =>
 		bulid
 			// 이미지 불러오기
@@ -60,13 +73,15 @@ const imageSlice = createSlice({
 				state.imagesLoading = true
 				state.imagesDone = false
 				state.imagesError = null
+				state.myImagesChangeOnce = false
 			})
 			.addCase(
 				imageMeFetch.fulfilled,
 				(state: ImageState, action: PayloadAction<ResImagesData[]>) => {
 					state.imagesLoading = false
 					state.imagesDone = true
-					state.myImages = action.payload
+					if (state.myImages.length === 0) state.myImages = action.payload
+					else state.myImages = [...state.myImages, ...action.payload]
 				}
 			)
 			.addCase(imageMeFetch.rejected, (state: ImageState, action: AnyAction) => {
@@ -84,8 +99,9 @@ const imageSlice = createSlice({
 				(state: ImageState, action: PayloadAction<ResImagesData[]>) => {
 					state.uploadLoading = false
 					state.uploadDone = true
-					if (action.payload[0].public) state.images.push(...action.payload)
-					else state.myImages.push(...action.payload)
+					const newImages = action.payload.reverse()
+					if (action.payload[0].public) state.images = [...newImages, ...state.images]
+					state.myImages = [...newImages, ...state.myImages]
 				}
 			)
 			.addCase(imageUpload.rejected, (state: ImageState, action: AnyAction) => {
@@ -104,6 +120,8 @@ const imageSlice = createSlice({
 					state.deleteLoading = false
 					state.deleteDone = true
 					state.images = action.payload
+					state.myImages = []
+					state.myImagesChangeOnce = true
 				}
 			)
 			.addCase(imageDelete.rejected, (state: ImageState, action: AnyAction) => {
@@ -111,5 +129,7 @@ const imageSlice = createSlice({
 				state.deleteError = action.payload
 			})
 })
+
+export const { setHasImagesFetch, setHasMyImagesFetch } = imageSlice.actions
 
 export default imageSlice.reducer

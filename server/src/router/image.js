@@ -36,14 +36,13 @@ router.post('/', isLoggedIn, upload.array('image', 5), async (req, res) => {
 router.get('/', async (req, res) => {
 	try {
 		const { lastId } = req.query
-		console.log(lastId)
 		if (lastId && !isValidObjectId(lastId))
 			return res.status(400).json({ message: '잘못된 정보 입니다.' })
 		const images = await Image.find(
 			lastId ? { public: true, _id: { $lt: lastId } } : { public: true }
 		)
 			.sort({ _id: -1 })
-			.limit(20)
+			.limit(30)
 		return res.status(200).json(images)
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
@@ -54,7 +53,14 @@ router.get('/', async (req, res) => {
 // 로그인된 유저의 이미지정보 가져오기 API
 router.get('/me', isLoggedIn, async (req, res) => {
 	try {
-		const images = await Image.find({ user: req.user._id })
+		const { lastId } = req.query
+		if (lastId && !isValidObjectId(lastId))
+			return res.status(400).json({ message: '잘못된 정보 입니다.' })
+		const images = await Image.find(
+			lastId ? { user: req.user._id, _id: { $lt: lastId } } : { user: req.user._id }
+		)
+			.sort({ _id: -1 })
+			.limit(30)
 		return res.status(200).json(images)
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
@@ -122,7 +128,7 @@ router.delete('/:imageId', isLoggedIn, async (req, res) => {
 		const image = await Image.findByIdAndDelete(imageId)
 		if (!image) return res.status(400).json({ message: '존재하지 않는 이미지 입니다.' })
 		await fileUnlink(`./uploads/${image.key}`)
-		const images = await Image.find()
+		const images = await Image.find().sort({ _id: -1 }).limit(30)
 		return res.status(200).json(images)
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
